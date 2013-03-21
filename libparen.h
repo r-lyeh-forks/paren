@@ -16,11 +16,11 @@
 #include <ctime>
 #include <memory>
 
-using namespace std;
-
 #define PAREN_VERSION "1.4.2"
 
 namespace libparen {
+    using namespace std;
+
     struct node {
         enum {T_NIL, T_INT, T_DOUBLE, T_BOOL, T_STRING, T_SYMBOL, T_LIST, T_BUILTIN, T_FN} type;
         enum builtin {PLUS, MINUS, MUL, DIV, CARET, PERCENT, SQRT, INC, DEC, PLUSPLUS, MINUSMINUS, FLOOR, CEIL, LN, LOG10, RAND,
@@ -42,7 +42,7 @@ namespace libparen {
         node();
         node(int a);
         node(double a);
-        node(bool a);        
+        node(bool a);
         node(const string a);
         node(const vector<node> &a);
 
@@ -70,7 +70,7 @@ namespace libparen {
 
         unordered_map<string, int> builtin_map;
         environment global_env; // variables
-                
+
         node eval(node &n, environment &env);
         node eval_all(vector<node> &lst);
         void print_symbols();

@@ -3,9 +3,9 @@
 
 #include "libparen.h"
 
-using namespace std;
-
 namespace libparen {
+    using namespace std;
+
     paren::paren() {
         init();
     }
@@ -13,7 +13,7 @@ namespace libparen {
     node::node(): type(T_NIL) {}
     node::node(int a): type(T_INT), v_int(a) {}
     node::node(double a): type(T_DOUBLE), v_double(a) {}
-    node::node(bool a): type(T_BOOL), v_bool(a) {}    
+    node::node(bool a): type(T_BOOL), v_bool(a) {}
     node::node(const string a): type(T_STRING), v_string(a) {}
     node::node(const vector<node> &a): type(T_LIST), v_list(a) {}
     node nil;
@@ -113,14 +113,14 @@ namespace libparen {
     private:
         vector<string> ret;
         string acc; // accumulator
-        string s;        
+        string s;
         void emit() { // add accumulated string to token list
             if (acc.length() > 0) {ret.push_back(acc); acc = "";}
         }
     public:
         int unclosed; // number of unclosed parenthesis ( or quotation "
         tokenizer(const string &s): s(s), unclosed(0) {}
-        
+
         vector<string> tokenize() {
             int last = s.length() - 1;
             for (int pos=0; pos <= last; pos++) {
@@ -178,8 +178,8 @@ namespace libparen {
     vector<string> paren::tokenize(const string &s) {
         return tokenizer(s).tokenize();
     }
-    
-    class parser {        
+
+    class parser {
     private:
         int pos;
         vector<string> tokens;
@@ -214,15 +214,15 @@ namespace libparen {
                 }
             }
             return ret;
-        }        
+        }
     };
-    
+
     vector<node> paren::parse(const string &s) {
         return parser(tokenize(s)).parse();
     }
 
     environment::environment(): outer(NULL) {}
-    environment::environment(environment *outer): outer(outer) {}    
+    environment::environment(environment *outer): outer(outer) {}
 
     node &environment::get(const string &name) {
         auto found = env.find(name);
@@ -279,7 +279,7 @@ namespace libparen {
                         return nil;
                     }
                 }
-                
+
             }
         case node::T_LIST: // function (FUNCTION ARGUMENT ..)
             {
@@ -434,11 +434,11 @@ namespace libparen {
                         case node::RAND: { // (rand)
                             return node(rand_double());}
                         case node::SET: // (set SYMBOL VALUE)
-                            {                            
+                            {
                                 env.env[n.v_list[1].v_string] = eval(n.v_list[2], env);
                                 return node();
                             }
-                        case node::EQEQ: { // (== X ..) short-circuit                    
+                        case node::EQEQ: { // (== X ..) short-circuit
                             node first = eval(n.v_list[1], env);
                             if (first.type == node::T_INT) {
                                 int firstv = first.v_int;
@@ -453,7 +453,7 @@ namespace libparen {
                                 }
                             }
                             return node(true);}
-                        case node::NOTEQ: { // (!= X ..) short-circuit                    
+                        case node::NOTEQ: { // (!= X ..) short-circuit
                             node first = eval(n.v_list[1], env);
                             if (first.type == node::T_INT) {
                                 int firstv = first.v_int;
@@ -539,9 +539,9 @@ namespace libparen {
                                 node start = eval(n.v_list[2], env);
                                 env.env[n.v_list[1].v_string] = start;
                                 int len = n.v_list.size();
-                                if (start.type == node::T_INT) {                            
+                                if (start.type == node::T_INT) {
                                     int last = eval(n.v_list[3], env).to_int();
-                                    int step = eval(n.v_list[4], env).to_int();                                
+                                    int step = eval(n.v_list[4], env).to_int();
                                     int &a = env.get(n.v_list[1].v_string).v_int;
                                     if (step >= 0) {
                                         for (; a <= last; a += step) {
@@ -560,7 +560,7 @@ namespace libparen {
                                 }
                                 else {
                                     double last = eval(n.v_list[3], env).to_double();
-                                    double step = eval(n.v_list[4], env).to_double();                                
+                                    double step = eval(n.v_list[4], env).to_double();
                                     double &a = env.get(n.v_list[1].v_string).v_double;
                                     if (step >= 0) {
                                         for (; a <= last; a += step) {
@@ -615,7 +615,7 @@ namespace libparen {
                             return node(parse(eval(n.v_list[1], env).to_str())[0]);}
                         case node::TYPE: { // (type X)
                             return node(eval(n.v_list[1], env).type_str());}
-                        case node::EVAL: { // (eval X)                    
+                        case node::EVAL: { // (eval X)
                             node n2 = eval(n.v_list[1], env);
                             return node(eval(n2, env));}
                         case node::QUOTE: { // (quote X)
@@ -651,7 +651,7 @@ namespace libparen {
                                 expr[1] = lst.at(i);
                                 node n2 = node(expr);
                                 acc.push_back(eval(n2, env));
-                            }                    
+                            }
                             return node(acc);
                         }
                         case node::FILTER: { // (filter FUNC LIST)
@@ -667,11 +667,11 @@ namespace libparen {
                                 node n2 = node(expr);
                                 node ret = eval(n2, env);
                                 if (ret.v_bool) acc.push_back(item);
-                            }                    
+                            }
                             return node(acc);
                         }
                         case node::RANGE: { // (range START END STEP)
-                            node start = eval(n.v_list.at(1), env);                    
+                            node start = eval(n.v_list.at(1), env);
                             vector<node> ret;
                             if (start.type == node::T_INT) {
                                 int a = eval(n.v_list.at(1), env).v_int;
@@ -701,10 +701,10 @@ namespace libparen {
                             int i = eval(n.v_list.at(1), env).v_int;
                             const vector<node> &lst = eval(n.v_list.at(2), env).v_list;
                             return lst.at(i);}
-                        case node::LENGTH: { // (length LIST)                    
+                        case node::LENGTH: { // (length LIST)
                             const vector<node> &lst = eval(n.v_list.at(1), env).v_list;
                             return node((int) lst.size());}
-                        case node::BEGIN: { // (begin X ..)                    
+                        case node::BEGIN: { // (begin X ..)
                             int last = n.v_list.size() - 1;
                             if (last <= 0) return node();
                             for (int i = 1; i < last; i++) {
@@ -789,7 +789,7 @@ namespace libparen {
     }
 
     void paren::print_symbols() {
-        int i = 0;    
+        int i = 0;
         map<string, node> ordered(global_env.env.begin(), global_env.env.end());
         for (auto iter = ordered.begin(); iter != ordered.end(); iter++) {
             printf(" %s", iter->first.c_str());
@@ -798,7 +798,7 @@ namespace libparen {
         }
         puts("");
     }
-    
+
     void paren::print_functions() {
         int i = 0;
         map<string, int> ordered(builtin_map.begin(), builtin_map.end());
@@ -809,16 +809,16 @@ namespace libparen {
         }
         puts("");
     }
-    
+
     void paren::print_logo() {
-        printf("Paren %s (C) 2013 Kim, Taegyoon\n", PAREN_VERSION);        
+        printf("Paren %s (C) 2013 Kim, Taegyoon\n", PAREN_VERSION);
         puts("Predefined Symbols:");
         print_symbols();
         puts("Functions:");
         print_functions();
         puts("Etc.:");
         puts(" (list) \"string\" ; end-of-line comment");
-    } 
+    }
 
     void paren::prompt() {
         printf("> ");
